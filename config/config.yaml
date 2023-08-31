@@ -1,0 +1,7 @@
+artifacts_root: ./artifacts
+
+data_ingestion:
+  root_dir: ./artifacts/data_ingestion
+  source_URL: https://github.com/AmineMekki01/data/raw/main/brain_image_classification.zip
+  local_data_file: ./artifacts/data_ingestion/brain_image_classification.zip
+  unzip_dir: ./artifacts/data_ingestion
