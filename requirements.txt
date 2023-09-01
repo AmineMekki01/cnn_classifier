@@ -13,6 +13,7 @@ Flask-Cors
 tqdm
 ensure
 dvc
+scikit-learn
 # torch
 
 -e .
