@@ -42,7 +42,6 @@ class PrepareBaseModel:
                 nn.Linear(512 * 7 * 7, classes)  # This assumes the standard output size of VGG19 before classifier. Adjust if necessary.
             )
         else:
-            # Adjusting existing classifier for different number of classes
             num_ftrs = model.classifier[6].in_features
             model.classifier[6] = nn.Linear(num_ftrs, classes)
 
