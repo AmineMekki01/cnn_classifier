@@ -12,7 +12,7 @@ from cnnClassifier import logger
 import yaml
 import json 
 import base64
-import joblib
+import torch
 from box.exceptions import BoxValueError
 from ensure import ensure_annotations
 from box import ConfigBox
@@ -140,3 +140,6 @@ def encodeImageIntoBase64(cropped_image_path):
         f.close()
     return img_string #.decode('utf-8')
     
+def accuracy(outputs, labels):
+    _, preds = torch.max(outputs, 1)
+    return torch.tensor(torch.sum(preds == labels).item() / len(preds))

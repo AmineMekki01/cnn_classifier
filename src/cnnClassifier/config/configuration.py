@@ -1,6 +1,6 @@
 from cnnClassifier.constants import *
 from cnnClassifier.utils.common_functions import get_size, read_yaml, create_directories
-from cnnClassifier.entity.config_entity import DataIngestionConfig, PrepareBaseModelConfig, PrepareCallbackConfig
+from cnnClassifier.entity.config_entity import DataIngestionConfig, PrepareBaseModelConfig, PrepareCallbackConfig, TrainingConfig, EvaluationConfig, InferenceConfig
 
 class ConfigurationManager:
     def __init__(self, config_filepath=CONFIG_FILE_PATH, params_filepath=PARAMS_FILE_PATH):
@@ -44,7 +44,7 @@ class ConfigurationManager:
             Path(model_ckpt_dir),
             Path(config.tensorboard_root_log_dir)
         ])
-        
+    
         prepare_callback_config = PrepareCallbackConfig(
             root_dir = Path(config.root_dir),
             tensorboard_root_log_dir = Path(config.tensorboard_root_log_dir),
@@ -52,3 +52,50 @@ class ConfigurationManager:
         )
         
         return prepare_callback_config
+    
+     
+    def get_training_config(self) -> TrainingConfig:
+        training = self.config.training
+        prepare_base_model = self.config.prepare_base_model
+        params = self.params
+        training_data = os.path.join(self.config.data_ingestion.unzip_dir, "brain_mri_images/training")
+        create_directories([
+            Path(training.root_dir)
+        ])
+        
+        training_config = TrainingConfig(
+            root_dir = Path(training.root_dir),
+            trained_model_path = Path(training.trained_model_path),
+            updated_base_model_path = Path(prepare_base_model.updated_base_model_path),
+            training_data = Path(training_data),
+            params_epochs = params.EPOCHS,
+            params_batch_size = params.BATCH_SIZE,
+            params_is_augmentation = params.AUGMENTATION,
+            params_image_size = params.IMAGE_SIZE
+        )
+        return training_config
+    
+    def get_evaluation_config(self) -> EvaluationConfig:
+        evaluation = self.config.evaluation
+        training_data = os.path.join(self.config.data_ingestion.unzip_dir, "brain_mri_images/training")
+        params = self.params
+        eval_config = EvaluationConfig(
+            path_to_model = Path(evaluation.trained_model_path),
+            training_data = Path(training_data), 
+            score_path = Path(evaluation.score_path),
+            params_image_size = self.params.IMAGE_SIZE,
+            params_batch_size = self.params.BATCH_SIZE,
+        )
+        return eval_config
+    
+    def get_inference_config(self) -> InferenceConfig:
+        inference = self.config.inference
+
+        eval_config = InferenceConfig(
+            path_to_model= Path(inference.trained_model_path),
+            testing_data = Path(inference.images_dir),
+            params_image_size = self.params.IMAGE_SIZE,
+            params_batch_size = self.params.BATCH_SIZE
+        )
+        
+        return eval_config
