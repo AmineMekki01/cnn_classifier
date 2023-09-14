@@ -38,8 +38,9 @@ class PrepareBaseModel:
             # Adding new layers
             model = nn.Sequential(
                 model,
+                nn.AdaptiveAvgPool2d((1, 1)),   # Adding Adaptive Average Pooling
                 nn.Flatten(),
-                nn.Linear(512 * 7 * 7, classes)  # This assumes the standard output size of VGG19 before classifier. Adjust if necessary.
+                nn.Linear(512, classes)  # Adjusted from 512 * 7 * 7 to just 512
             )
         else:
             num_ftrs = model.classifier[6].in_features
@@ -48,7 +49,7 @@ class PrepareBaseModel:
         optimizer = optim.Adam(filter(lambda p: p.requires_grad, model.parameters()), lr=learning_rate)
         criterion = nn.CrossEntropyLoss()
 
-        return model
+        return model, optimizer, criterion
 
     def update_base_model(self):
         self.full_model, optimizer, criterion = self._prepare_full_model(
@@ -62,7 +63,7 @@ class PrepareBaseModel:
 
     @staticmethod
     def save_model(path: Path, model:nn.Module):
-        torch.save(model.state_dict(), path)
+        torch.save(model, path)
     
     def get_summary(self, input_size):
         return summary(self.full_model, input_size)

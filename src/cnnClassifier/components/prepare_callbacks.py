@@ -28,8 +28,9 @@ class PrepareCallback:
         }, self.config.checkpoint_model_filepath)
 
         
-    def get_tb_ckpt_callbacks(self):
+    def get_tb_ckpt_callbacks(self, model=None, optimizer=None, epoch=None, loss=None):
         return [
-            self._create_tb_callbacks,
-            self._create_ckpt_callbacks
+            self._create_tb_callbacks, 
+            lambda: self._create_ckpt_callbacks(model, optimizer, epoch, loss)
         ]
+        
