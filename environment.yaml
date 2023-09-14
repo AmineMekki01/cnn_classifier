@@ -1,0 +1,27 @@
+name: cnnClassifier
+channels:
+- pytorch
+- nvidia
+- defaults
+dependencies:
+- pytorch
+- torchvision
+- torchaudio
+- cudatoolkit
+- pandas
+- numpy
+- matplotlib
+- seaborn
+- notebook
+- box
+- pyyaml
+- joblib
+- scipy
+- flask
+- flask-cors
+- tqdm
+- ensure
+- dvc
+- scikit-learn
+- pip:
+  - -e ./src/cnnClassifier

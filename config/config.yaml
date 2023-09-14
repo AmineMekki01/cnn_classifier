@@ -17,3 +17,17 @@ prepare_callbacks:
   tensorboard_root_log_dir: artifacts/prepare_callbacks/tensorboard_log_dir
   checkpoint_model_filepath: artifacts/prepare_callbacks/checkpoint_dir/model.h5
 
+
+training:
+  root_dir: artifacts/Training
+  trained_model_path: artifacts/Training/model.h5
+
+evaluation:
+  root_dir: artifacts/Training
+  trained_model_path: artifacts/Training/model.h5
+  score_path: artifacts/scoring
+
+inference:
+  root_dir: artifacts/Inference
+  trained_model_path: artifacts/Training/model.h5 # final model that will be used in predictions 
+  images_dir: artifacts/data_ingestion/Prediction check images/Prediction check images/Prediction check images

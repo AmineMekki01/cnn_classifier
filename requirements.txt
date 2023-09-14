@@ -14,6 +14,6 @@ tqdm
 ensure
 dvc
 scikit-learn
-# torch
+torch
 
 -e .
