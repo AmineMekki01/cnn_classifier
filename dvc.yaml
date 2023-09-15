@@ -1,0 +1,53 @@
+stages:
+  data_ingestion:
+    cmd: python src/cnnClassifier/pipeline/S1_data_ingestion.py
+    deps:
+    - src/cnnClassifier/pipeline/S1_data_ingestion.py
+    - config/config.yaml
+    outs:
+    - ./artifacts/data_ingestion/brain_mri_images
+
+  prepare_base_model:
+    cmd: python src/cnnClassifier/pipeline/S2_prepare_base_model.py
+    deps:
+    - src/cnnClassifier/pipeline/S2_prepare_base_model.py
+    - config/config.yaml
+    params:
+    - IMAGE_SIZE
+    - INCLUDE_TOP
+    - CLASSES
+    - WEIGHTS
+    - LEARNING_RATE
+    outs:
+    - artifacts/prepare_base_model
+
+  training:
+    cmd: python src/cnnClassifier/pipeline/S3_training.py
+    deps:
+    - src/cnnClassifier/pipeline/S3_training.py
+    - src/cnnClassifier/components/prepare_callbacks.py
+    - config/config.yaml
+    - artifacts/data_ingestion/brain_mri_images/training
+    - artifacts/prepare_base_model
+    params:
+    - IMAGE_SIZE
+    - EPOCHS
+    - BATCH_SIZE
+    - AUGMENTATION
+    outs:
+    - artifacts/training/model.h5
+    metrics:
+    - artifacts/scoring/training/metrics.json
+
+  evaluation:
+    cmd: python src/cnnClassifier/pipeline/S4_evaluation.py
+    deps:
+    - src/cnnClassifier/pipeline/S4_evaluation.py
+    - config/config.yaml
+    - artifacts/data_ingestion/brain_mri_images/training
+    - artifacts/training/model.h5
+    params:
+    - IMAGE_SIZE
+    - BATCH_SIZE
+    metrics:
+    - artifacts/scoring/evaluation/scores.json
