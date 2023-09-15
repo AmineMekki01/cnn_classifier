@@ -21,11 +21,12 @@ prepare_callbacks:
 training:
   root_dir: artifacts/Training
   trained_model_path: artifacts/Training/model.h5
+  score_path: artifacts/scoring/training
 
 evaluation:
   root_dir: artifacts/Training
   trained_model_path: artifacts/Training/model.h5
-  score_path: artifacts/scoring
+  score_path: artifacts/scoring/evaluation
 
 inference:
   root_dir: artifacts/Inference
