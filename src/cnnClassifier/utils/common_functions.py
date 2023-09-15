@@ -18,6 +18,7 @@ from ensure import ensure_annotations
 from box import ConfigBox
 from pathlib import Path
 from typing import Any
+from sklearn.metrics import precision_score, recall_score, f1_score, accuracy_score
 
 @ensure_annotations
 def read_yaml(path_to_yaml : Path) -> ConfigBox:
@@ -73,10 +74,25 @@ def save_json(path : Path, data :dict):
     Returns:
         None
     """
-    
+
+    # This recursive function converts tensors to lists within nested dictionaries
+    def convert_tensors_to_lists(item):
+        if isinstance(item, dict):
+            return {key: convert_tensors_to_lists(value) for key, value in item.items()}
+        elif isinstance(item, torch.Tensor):
+            return item.cpu().numpy().tolist()
+        elif isinstance(item, list):
+            return [convert_tensors_to_lists(i) for i in item]
+        else:
+            return item
+
+    data = convert_tensors_to_lists(data)
+
     with open(path, "w") as f:
         json.dump(data, f, indent=4)
+
     logger.info(f"json file saved at : {os.path.normpath(path)}")
+    
     
 @ensure_annotations
 def load_json(path : Path) -> ConfigBox:
@@ -139,7 +155,32 @@ def encodeImageIntoBase64(cropped_image_path):
         img_string = base64.b64encode(f.read())
         f.close()
     return img_string #.decode('utf-8')
+
+
+def compute_metrics1(y_true, y_pred):
     
-def accuracy(outputs, labels):
-    _, preds = torch.max(outputs, 1)
-    return torch.tensor(torch.sum(preds == labels).item() / len(preds))
+    y_pred = torch.argmax(y_pred, dim=1).cpu().detach().numpy() # Detach before converting to numpy
+    y_true = y_true.cpu().detach().numpy() # Detach before converting to numpy
+
+    precision = precision_score(y_true, y_pred, zero_division=1, average='weighted')
+    recall = recall_score(y_true, y_pred, zero_division=1, average='weighted')
+    f1 = f1_score(y_true, y_pred, average='weighted')
+    acc = accuracy_score(y_true, y_pred)
+
+    return acc, precision, recall, f1
+
+def compute_metrics2(y_pred, y_true):
+    if y_pred.dim() > 1: # Check if outputs tensor has more than one dimension
+        y_pred = torch.argmax(y_pred, dim=1)
+    else:
+        y_pred = y_pred
+        
+    
+    y_true = y_true.cpu().numpy()
+
+    precision = precision_score(y_true, y_pred, zero_division=1, average='weighted')
+    recall = recall_score(y_true, y_pred, zero_division=1, average='weighted')
+    f1 = f1_score(y_true, y_pred, average='weighted')
+    acc = accuracy_score(y_true, y_pred)
+
+    return acc, precision, recall, f1

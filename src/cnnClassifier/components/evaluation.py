@@ -6,8 +6,8 @@ from torchvision.datasets import ImageFolder
 from torch.utils.data import DataLoader, random_split
 from tqdm import tqdm
 from cnnClassifier.entity.config_entity import EvaluationConfig, TrainingConfig
-from cnnClassifier.utils.common_functions import accuracy, save_json
-
+from cnnClassifier.utils.common_functions import compute_metrics2, save_json
+import os 
 
 class Evaluation():
     def __init__(self, config: EvaluationConfig):
@@ -32,7 +32,9 @@ class Evaluation():
         
         full_dataset = ImageFolder(self.config.training_data, transform=valid_transform)
         
-        # Assuming the validation data is 20% of the full dataset
+        # one_percent_length = int(0.01 * len(full_dataset))
+        # _, full_dataset = random_split(full_dataset, [len(full_dataset) - one_percent_length, one_percent_length])
+        
         val_len = int(0.2 * len(full_dataset))
         self.valid_dataset, _ = random_split(full_dataset, [val_len, len(full_dataset) - val_len])
         self.valid_loader = DataLoader(self.valid_dataset, batch_size=self.config.params_batch_size, shuffle=False, num_workers=4)
@@ -40,32 +42,54 @@ class Evaluation():
     def validate(self):
         """Evaluate the model on validation data."""
         self.model.eval()
-        valid_loss = 0.0
-        valid_acc = 0.0
+        loss = 0.0
+        acc = 0.0
+        precision = 0.0
+        recall = 0.0
+        f1_score = 0.0
+        
+        metrics = {
+                "validation precision" : [],
+                "validation recall" : [],
+                "validation f1 score" : [],
+                "validation loss" : [],
+                "validation accuracy" : []
+        }
         
         with torch.no_grad():
             for inputs, labels in self.valid_loader:
                 inputs, labels = inputs.to(self.device), labels.to(self.device)
                 outputs = self.model(inputs)
                 loss = self.criterion(outputs, labels)
-                valid_loss += loss.item()
-                valid_acc += accuracy(outputs, labels)
-            
-        valid_loss /= len(self.valid_loader)
-        valid_acc /= len(self.valid_loader)
-        print(f"Validation Loss: {valid_loss:.4f} - Validation Accuracy: {valid_acc:.4f}\n")
+                loss += loss.item()
+                print("input : " , inputs.shape)
+                print("outputs : ", outputs.shape)
+                valid_accuracy, valid_precision, valid_recall, valid_f1 = compute_metrics2(outputs, labels)
+                
+                acc += valid_accuracy
+                precision += valid_precision
+                recall += valid_recall
+                f1_score += valid_f1
+                
+        precision /= len(self.valid_loader)
+        recall /= len(self.valid_loader)
+        f1_score /= len(self.valid_loader)
+        acc /= len(self.valid_loader)
+        loss /= len(self.valid_loader)
+
+        metrics["validation precision"]= precision
+        metrics["validation recall"]= recall
+        metrics["validation f1 score"]= f1_score
+        metrics["validation accuracy"]= acc
+        metrics["validation loss"]= loss
+
+        print(f"Train Accuracy: {acc:.4f} - Train Precision: {precision:.4f} - Train Recall: {recall:.4f} - Train F1: {f1_score:.4f} - Loss: {loss:.4f}")
         
-        return (valid_loss, valid_acc)
-    
+        save_json(Path(self.config.score_path) / "metrics.json", metrics)
+
     def evaluation(self):
         """Main evaluation function to initialize data loaders and validate the model."""
         self.valid_generator()
-        self.score = self.validate()
+        self.validate()
         
-    def save_score(self):
-        """Save the evaluation scores as a JSON file."""
-        if self.score:
-            scores = {"Loss": self.score[0], "Accuracy": self.score[1]}
-            save_json(self.config.score_path, scores)
-        else:
-            print("Scores have not been computed. Run the evaluation first.")
+ 

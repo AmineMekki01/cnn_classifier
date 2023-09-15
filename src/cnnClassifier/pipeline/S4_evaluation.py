@@ -17,3 +17,14 @@ class ModelEvaluationPipeline:
         evaluation_config = config_manager.get_evaluation_config()
         evaluation = Evaluation(config=evaluation_config)
         evaluation.evaluation()
+
+if __name__ == "__main__":
+    try:
+        logger.info(f">>>>> Stage {STAGE_NAME} started <<<<<")
+        data_ingestor = ModelEvaluationPipeline()
+        data_ingestor.main()
+        logger.info(f">>>>> Stage {STAGE_NAME} completed. <<<<< \n")
+        
+    except Exception as e:
+        logger.exception(e)
+        raise e

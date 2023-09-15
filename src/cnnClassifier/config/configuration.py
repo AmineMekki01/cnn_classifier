@@ -60,7 +60,7 @@ class ConfigurationManager:
         params = self.params
         training_data = os.path.join(self.config.data_ingestion.unzip_dir, "brain_mri_images/training")
         create_directories([
-            Path(training.root_dir)
+            Path(training.root_dir), Path(training.score_path)
         ])
         
         training_config = TrainingConfig(
@@ -68,6 +68,7 @@ class ConfigurationManager:
             trained_model_path = Path(training.trained_model_path),
             updated_base_model_path = Path(prepare_base_model.updated_base_model_path),
             training_data = Path(training_data),
+            score_path = Path(training.score_path),
             params_epochs = params.EPOCHS,
             params_batch_size = params.BATCH_SIZE,
             params_is_augmentation = params.AUGMENTATION,
@@ -79,12 +80,16 @@ class ConfigurationManager:
         evaluation = self.config.evaluation
         training_data = os.path.join(self.config.data_ingestion.unzip_dir, "brain_mri_images/training")
         params = self.params
+        create_directories([
+            Path(evaluation.root_dir), Path(evaluation.score_path)
+        ])
+        
         eval_config = EvaluationConfig(
             path_to_model = Path(evaluation.trained_model_path),
             training_data = Path(training_data), 
             score_path = Path(evaluation.score_path),
-            params_image_size = self.params.IMAGE_SIZE,
-            params_batch_size = self.params.BATCH_SIZE,
+            params_image_size = params.IMAGE_SIZE,
+            params_batch_size = params.BATCH_SIZE,
         )
         return eval_config
     

@@ -23,7 +23,13 @@ class PrepareBaseModelTrainingPipeline:
         logger.info(f"Base model prepared and saved at {config.base_model_path}")
         logger.info(f"Updated base model saved at {config.updated_base_model_path}")
 
-# # testing
-# if __name__ == "__main__":
-#     pipeline = PrepareBaseModelTrainingPipeline()
-#     pipeline.main()
+if __name__ == "__main__":
+    try:
+        logger.info(f">>>>> Stage {STAGE_NAME} started <<<<<")
+        prepare_base_model = PrepareBaseModelTrainingPipeline()
+        prepare_base_model.main()
+        logger.info(f">>>>> Stage {STAGE_NAME} completed. <<<<< \n")
+        
+    except Exception as e:
+        logger.exception(e)
+        raise e
