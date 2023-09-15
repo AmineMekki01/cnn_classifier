@@ -5,7 +5,7 @@ stages:
     - src/cnnClassifier/pipeline/S1_data_ingestion.py
     - config/config.yaml
     outs:
-    - ./artifacts/data_ingestion/brain_mri_images
+    - ./artifacts/data_ingestion/brain_image_classification/brain_mri_images
 
   prepare_base_model:
     cmd: python src/cnnClassifier/pipeline/S2_prepare_base_model.py
@@ -27,7 +27,7 @@ stages:
     - src/cnnClassifier/pipeline/S3_training.py
     - src/cnnClassifier/components/prepare_callbacks.py
     - config/config.yaml
-    - artifacts/data_ingestion/brain_mri_images/training
+    - artifacts/data_ingestion/brain_image_classification/brain_mri_images/training
     - artifacts/prepare_base_model
     params:
     - IMAGE_SIZE
@@ -44,7 +44,7 @@ stages:
     deps:
     - src/cnnClassifier/pipeline/S4_evaluation.py
     - config/config.yaml
-    - artifacts/data_ingestion/brain_mri_images/training
+    - artifacts/data_ingestion/brain_image_classification/brain_mri_images/training
     - artifacts/training/model.h5
     params:
     - IMAGE_SIZE

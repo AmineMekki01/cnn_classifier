@@ -16,7 +16,7 @@ class Training:
         self.criterion = nn.CrossEntropyLoss()
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.get_base_model()
-        self.optimizer = optim.Adam(self.model.parameters(), lr=0.001)
+        self.optimizer = optim.Adam(self.model.parameters(), lr=0.01)
         
     def get_base_model(self):
         self.model = torch.load(self.config.updated_base_model_path)
@@ -39,7 +39,11 @@ class Training:
         train_transform = transforms.Compose(transform_list)
         
         full_dataset = ImageFolder(self.config.training_data, transform=train_transform)
+      
+        # one_percent_length = int(0.01 * len(full_dataset))
+        # _, full_dataset = random_split(full_dataset, [len(full_dataset) - one_percent_length, one_percent_length])
         
+      
         val_len = int(0.2 * len(full_dataset))
         train_len = len(full_dataset) - val_len
 

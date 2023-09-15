@@ -13,7 +13,6 @@ class PrepareBaseModel:
         self.config = config
 
     def get_base_model(self):
-        # Note: torchvision has pre-trained weights only for include_top=True. So if you need exclude top, you'll need to handle that differently.
         self.model = models.vgg19(pretrained=(self.config.params_weights == "imagenet"))
 
         if not self.config.params_include_top:

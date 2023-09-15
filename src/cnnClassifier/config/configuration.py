@@ -58,7 +58,7 @@ class ConfigurationManager:
         training = self.config.training
         prepare_base_model = self.config.prepare_base_model
         params = self.params
-        training_data = os.path.join(self.config.data_ingestion.unzip_dir, "brain_mri_images/training")
+        training_data = os.path.join(self.config.data_ingestion.unzip_dir, "brain_image_classification/brain_mri_images/Training")
         create_directories([
             Path(training.root_dir), Path(training.score_path)
         ])

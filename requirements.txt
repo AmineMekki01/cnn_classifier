@@ -14,8 +14,7 @@ tqdm
 ensure
 dvc
 scikit-learn
-torch
-
+torchsummary
+tensorboard
 -e .
-
 
