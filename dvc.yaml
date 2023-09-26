@@ -50,4 +50,4 @@ stages:
     - IMAGE_SIZE
     - BATCH_SIZE
     metrics:
-    - artifacts/scoring/evaluation/scores.json
+    - artifacts/scoring/evaluation/metrics.json

@@ -20,6 +20,7 @@ prepare_callbacks:
 
 training:
   root_dir: artifacts/Training
+  updated_base_model_path: artifacts/prepare_base_model/base_model_updated.h5
   trained_model_path: artifacts/Training/model.h5
   score_path: artifacts/scoring/training
 
@@ -30,5 +31,5 @@ evaluation:
 
 inference:
   root_dir: artifacts/Inference
-  trained_model_path: artifacts/Training/model.h5 # final model that will be used in predictions 
-  images_dir: artifacts/data_ingestion/Prediction check images/Prediction check images/Prediction check images
+  trained_model_path: artifacts/Training/model.h5
+  images_dir: artifacts/data_ingestion/brain_image_classification/Prediction check images/Prediction check images/Prediction check images
