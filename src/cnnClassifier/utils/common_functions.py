@@ -7,6 +7,7 @@ In this file i will put the common used functions so as i dont repeat my self.
 """
 
 # importing libraries
+import numpy as np
 import os 
 from cnnClassifier import logger
 import yaml
@@ -156,26 +157,39 @@ def encodeImageIntoBase64(cropped_image_path):
         f.close()
     return img_string #.decode('utf-8')
 
+def accuracy(y_true, y_pred):
+    if y_pred.dim() > 1:  # Check if outputs tensor has more than one dimension
+        y_pred = torch.argmax(y_pred, dim=1)
+    y_pred = y_pred.cpu().detach().numpy()  # Move the tensor to CPU and then convert to numpy
+    y_true = y_true.cpu().detach().numpy()
+
+    # If y_true is one-hot encoded, convert to class labels
+    if y_true.shape[1] > 1:
+        y_true = np.argmax(y_true, axis=1)
+
+    return sum(y_pred == y_true) / len(y_true)
+
+
+from sklearn.metrics import precision_score, recall_score, f1_score, accuracy_score, roc_curve, auc
 
 def compute_metrics1(y_true, y_pred):
     
-    y_pred = torch.argmax(y_pred, dim=1).cpu().detach().numpy() # Detach before converting to numpy
-    y_true = y_true.cpu().detach().numpy() # Detach before converting to numpy
+    y_pred_softmax = torch.nn.functional.softmax(y_pred, dim=1)
+    y_pred_argmax = torch.argmax(y_pred_softmax, dim=1).cpu().detach().numpy()
+    y_true = y_true.cpu().detach().numpy()
+    y_pred_softmax = y_pred_softmax.cpu().detach().numpy()
 
-    precision = precision_score(y_true, y_pred, zero_division=1, average='weighted')
-    recall = recall_score(y_true, y_pred, zero_division=1, average='weighted')
-    f1 = f1_score(y_true, y_pred, average='weighted')
-    acc = accuracy_score(y_true, y_pred)
+    precision = precision_score(y_true, y_pred_argmax, zero_division=1, average='weighted')
+    recall = recall_score(y_true, y_pred_argmax, zero_division=1, average='weighted')
+    f1 = f1_score(y_true, y_pred_argmax, average='weighted')
+    acc = accuracy_score(y_true, y_pred_argmax)
 
     return acc, precision, recall, f1
 
 def compute_metrics2(y_pred, y_true):
-    if y_pred.dim() > 1: # Check if outputs tensor has more than one dimension
+    if y_pred.dim() > 1:  # Check if outputs tensor has more than one dimension
         y_pred = torch.argmax(y_pred, dim=1)
-    else:
-        y_pred = y_pred
-        
-    
+    y_pred = y_pred.cpu().numpy()  # Move the tensor to CPU and then convert to numpy
     y_true = y_true.cpu().numpy()
 
     precision = precision_score(y_true, y_pred, zero_division=1, average='weighted')
