@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <title>cnncls</title>
+        <link href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="./../static/styles.css">
+    </head>
+    <body class="bg-gray-100">
+        <div class="container mx-auto">
+            <section class="iupload text-center py-4">
+                <h3 class="text-3xl font-bold text-blue-800">Object Classification</h3>
+                <div class="flex flex-col flex-wrap">
+                    <div class="img-part w-1/2 mx-auto flex flex-col items-center justify-center">
+                        <div class="image-part border border-blue-800 m-auto h-64 w-64 flex items-center justify-center">
+                            <div class="video-container">
+                                <video autoplay id="video" class="block"></video>
+                            </div>
+                            <img src="" id="photo" class="absolute h-64 w-64 hidden p-2">
+                            <canvas id="canvas" class="hidden"></canvas>
+                        </div>
+                        <div class="btn-part mt-3 w-80 flex flex-col items-center">
+                            <form id="upload-data" class="flex justify-between w-full">
+                                <button type="button" class="btn btn-primary px-4 py-2 bg-blue-500 text-white" id="uload">Upload</button>
+                                <button id="send" type="button" class="btn btn-success px-4 py-2 bg-green-500 text-white">Predict</button>
+                            </form>
+                            <input type="hidden" class="form-control border border-blue-800 w-full mt-2" id="url" placeholder="Enter REST Api url..." value="../predict"/>
+                            <input name="upload" type="file" id="fileinput" class="absolute top-0 opacity-0" multiple/><br/>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-xs-12 right-part p-2 w-3/5 mx-auto">
+                        <h5 class="mb-2 text-center">Prediction Results</h5>
+                        <div class="flex">
+                            <div class="res-part w-full border border-gray-300 ml-4 p-2 h-64 overflow-auto">
+
+                                <div class="jsonRes ml-8"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <div id="loading" class="fixed inset-0 bg-white bg-opacity-75 z-50 overflow-hidden">
+            <div class="loader animate-spin border-t-8 border-t-blue-800 border-8 border-gray-300 h-16 w-16 m-auto absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-full"></div>
+        </div>
+
+        <footer class="fixed bottom-0 left-0 right-0 text-center bg-gray-200 text-gray-700 py-4">
+            <div>Made with love by Amine MEKKI</div>
+        </footer>
+    
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+        <script src="./static/scripts.js"></script>
+    </body>
+</html>
