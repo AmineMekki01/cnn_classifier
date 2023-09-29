@@ -19,7 +19,8 @@ stages:
     - WEIGHTS
     - LEARNING_RATE
     outs:
-    - artifacts/prepare_base_model
+    - artifacts/prepare_base_model/base_model_path.pth
+    - artifacts/prepare_base_model/base_model_updated.pth
 
   training:
     cmd: python src/cnnClassifier/pipeline/S3_training.py
@@ -27,7 +28,7 @@ stages:
     - src/cnnClassifier/pipeline/S3_training.py
     - src/cnnClassifier/components/prepare_callbacks.py
     - config/config.yaml
-    - artifacts/data_ingestion/brain_image_classification/brain_mri_images/training
+    - artifacts/data_ingestion/brain_image_classification/brain_mri_images/Training
     - artifacts/prepare_base_model
     params:
     - IMAGE_SIZE
@@ -35,7 +36,7 @@ stages:
     - BATCH_SIZE
     - AUGMENTATION
     outs:
-    - artifacts/training/model.h5
+    - artifacts/Training/final_model.pth
     metrics:
     - artifacts/scoring/training/metrics.json
 
@@ -45,7 +46,7 @@ stages:
     - src/cnnClassifier/pipeline/S4_evaluation.py
     - config/config.yaml
     - artifacts/data_ingestion/brain_image_classification/brain_mri_images/training
-    - artifacts/training/model.h5
+    - artifacts/training/final_model.pth
     params:
     - IMAGE_SIZE
     - BATCH_SIZE

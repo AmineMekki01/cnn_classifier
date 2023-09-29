@@ -5,8 +5,8 @@ stages:
     deps:
     - path: config/config.yaml
       hash: md5
-      md5: 6e5d89bfd90faa9cbf586d26aa272668
-      size: 1270
+      md5: 7623cd800e6179b9f925d624c9a9eec4
+      size: 1423
     - path: src/cnnClassifier/pipeline/S1_data_ingestion.py
       hash: md5
       md5: b9a21388c91b009224c2c846094e1a4f
@@ -22,25 +22,100 @@ stages:
     deps:
     - path: config/config.yaml
       hash: md5
-      md5: 6e5d89bfd90faa9cbf586d26aa272668
-      size: 1270
+      md5: 7623cd800e6179b9f925d624c9a9eec4
+      size: 1423
     - path: src/cnnClassifier/pipeline/S2_prepare_base_model.py
       hash: md5
-      md5: 3589b102815e7ab28d8d6cc6ad54111b
-      size: 1202
+      md5: 8d7004cdd84375afbe8ec60565542733
+      size: 1118
     params:
       params.yaml:
         CLASSES: 4
         IMAGE_SIZE:
         - 224
         - 224
-        - 3
         INCLUDE_TOP: false
-        LEARNING_RATE: 0.0001
+        LEARNING_RATE: 0.001
         WEIGHTS: imagenet
     outs:
+    - path: artifacts/prepare_base_model/base_model_path.pth
+      hash: md5
+      md5: 407dfc820645ddf34b77809c5e28d5df
+      size: 46848557
+    - path: artifacts/prepare_base_model/base_model_updated.pth
+      hash: md5
+      md5: 78e992fc3fd320355ab73cc615f9a60e
+      size: 44806497
+  training:
+    cmd: python src/cnnClassifier/pipeline/S3_training.py
+    deps:
+    - path: artifacts/data_ingestion/brain_image_classification/brain_mri_images/Training
+      hash: md5
+      md5: c9e7f1257a19fab865eed79bd94138b3.dir
+      size: 132449254
+      nfiles: 5712
     - path: artifacts/prepare_base_model
       hash: md5
-      md5: a34993fccdfdddd0427567b68184e370.dir
-      size: 160245302
+      md5: 5c80fa8d6afb92033fa0d5c493827e44.dir
+      size: 91655054
       nfiles: 2
+    - path: config/config.yaml
+      hash: md5
+      md5: 7623cd800e6179b9f925d624c9a9eec4
+      size: 1423
+    - path: src/cnnClassifier/components/prepare_callbacks.py
+      hash: md5
+      md5: c8bfa23657b57951c85d4bf107cf408d
+      size: 1183
+    - path: src/cnnClassifier/pipeline/S3_training.py
+      hash: md5
+      md5: 5b635629798117939021cbae4b955f4e
+      size: 1218
+    params:
+      params.yaml:
+        AUGMENTATION: true
+        BATCH_SIZE: 16
+        EPOCHS: 10
+        IMAGE_SIZE:
+        - 224
+        - 224
+    outs:
+    - path: artifacts/Training/final_model.pth
+      hash: md5
+      md5: f06f9c4602beaa7195781a1f008689f2
+      size: 44807293
+    - path: artifacts/scoring/training/metrics.json
+      hash: md5
+      md5: 267ba9187b242f404db73f7a7d6c06d2
+      size: 2304
+  evaluation:
+    cmd: python src/cnnClassifier/pipeline/S4_evaluation.py
+    deps:
+    - path: artifacts/data_ingestion/brain_image_classification/brain_mri_images/training
+      hash: md5
+      md5: c9e7f1257a19fab865eed79bd94138b3.dir
+      size: 132449254
+      nfiles: 5712
+    - path: artifacts/training/final_model.pth
+      hash: md5
+      md5: f06f9c4602beaa7195781a1f008689f2
+      size: 44807293
+    - path: config/config.yaml
+      hash: md5
+      md5: 7623cd800e6179b9f925d624c9a9eec4
+      size: 1423
+    - path: src/cnnClassifier/pipeline/S4_evaluation.py
+      hash: md5
+      md5: 340e79e16f117a13d3e624d92176f9e4
+      size: 1017
+    params:
+      params.yaml:
+        BATCH_SIZE: 16
+        IMAGE_SIZE:
+        - 224
+        - 224
+    outs:
+    - path: artifacts/scoring/evaluation/metrics.json
+      hash: md5
+      md5: d0932529bf19b4a43be93752a2d12222
+      size: 241
