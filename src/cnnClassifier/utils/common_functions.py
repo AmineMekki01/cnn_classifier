@@ -7,6 +7,7 @@ In this file i will put the common used functions so as i dont repeat my self.
 """
 
 # importing libraries
+
 import numpy as np
 import os 
 from cnnClassifier import logger
@@ -18,23 +19,25 @@ from box.exceptions import BoxValueError
 from ensure import ensure_annotations
 from box import ConfigBox
 from pathlib import Path
-from typing import Any
-from sklearn.metrics import precision_score, recall_score, f1_score, accuracy_score
+from sklearn.metrics import precision_score, recall_score, f1_score, accuracy_score, roc_curve, auc
 
 @ensure_annotations
 def read_yaml(path_to_yaml : Path) -> ConfigBox:
     """
     This function reads a yaml file and returns a ConfigBox object. 
 
-    Args:
-        path_to_yaml (Path): path to yaml file.
+    Parameters
+    ----------
+    path_to_yaml : Path
+        path to yaml file.
 
     Raises:
         ValueError: if yaml file is empty.
         e: if any other error occurs.
     
     Returns:
-        ConfigBox: ConfigBox object.
+    -------
+        ConfigBox : ConfigBox object.
     """
     try: 
         with open(path_to_yaml, "r") as yaml_file:
@@ -47,16 +50,20 @@ def read_yaml(path_to_yaml : Path) -> ConfigBox:
         raise e  
 
 @ensure_annotations
-def create_directories(path_to_directories : list, verbose=True):
+def create_directories(path_to_directories : list, verbose : bool = True):
     """
     This function creates directories if they dont exist.
     
-    Args:   
-        path_to_directories (list): list of paths to directories.   
-        verbose (bool, optional): whether to print or not. Defaults to True.    
-        
-    Returns:
-        None    
+    Parameters
+    ----------
+    path_to_directories : list
+        list of paths to directories.   
+    verbose : bool, optional
+        if True, print the created directories, by default True 
+    
+    Returns
+    -------
+    None
     """
     for path in path_to_directories:
         os.makedirs(path, exist_ok=True)
@@ -68,16 +75,34 @@ def save_json(path : Path, data :dict):
     """
     This function saves a json file.    
 
-    Args:
-        path (Path): path to json file. 
-        data (dict): data to save.  
-
-    Returns:
-        None
+    Parameters
+    ----------
+    path : Path
+        path to save the json file. 
+    
+    data : dict 
+        data to save in the json file.
+    
+    Returns
+    -------
+    None
     """
 
-    # This recursive function converts tensors to lists within nested dictionaries
-    def convert_tensors_to_lists(item):
+    def convert_tensors_to_lists(item : dict):
+        """
+        This function converts tensors to lists.
+    
+        Parameters  
+        ----------  
+        item : dict, torch.Tensor, list
+            item to convert.    
+        
+        Returns 
+        ------- 
+        dict, list, torch.Tensor
+            converted item. 
+            
+        """
         if isinstance(item, dict):
             return {key: convert_tensors_to_lists(value) for key, value in item.items()}
         elif isinstance(item, torch.Tensor):
@@ -100,11 +125,15 @@ def load_json(path : Path) -> ConfigBox:
     """
     This function loads a json file.
     
-    Args:   
-        path (Path): path to json file.
-        
-    Returns:    
-        ConfigBox: ConfigBox object.
+    Parameters
+    ----------
+    path : Path
+        path to json file.  
+    
+    Returns 
+    -------
+    ConfigBox
+        ConfigBox object.   
     """
     with open(path) as f:
         content = json.load(f)
@@ -116,25 +145,33 @@ def load_json(path : Path) -> ConfigBox:
 def get_size(path : Path) -> str:
     """
     get size in KB
-    Args:
-        path (Path): path to file.  
-
-    Returns:
-        str: size of file in KB.
+    
+    Parameters
+    ----------
+    path : Path
+        path to file.   
+    
+    Returns 
+    ------- 
+    str
+        size in KB.
     """
     size_in_kb = round(os.path.getsize(path)/1024)
     return f"~ {size_in_kb} KB."
 
-def decodeImage(img_string, file_name):
+def decodeImage(img_string : str, file_name : str):
     """
     This function decodes an image from base64 string and saves it.
 
-    Args:
-        img_string (str): base64 string.
-        file_name (str): path to save the image.
+    Parameters 
+    ----------
+    img_string : str
 
-    Returns:
-        None
+    file_name : str 
+
+    Returns 
+    ------- 
+    None    
     """
     img_data = base64.b64decode(img_string)
     with open(file_name, "wb") as f:
@@ -142,54 +179,59 @@ def decodeImage(img_string, file_name):
         f.close()
         
         
-def encodeImageIntoBase64(cropped_image_path):
+def encodeImageIntoBase64(cropped_image_path : str) -> str:
     """
     This function encodes cropped images into base 64 strings for sending them through API calls.   
     
-    Args:
-        cropped_image_path (str): path to cropped image.    
+    Parameters  
+    ----------
+    cropped_image_path : str
+        path to cropped image.
     
-    Returns:
-        str: base64 string.
+    Returns 
+    -------
+    str
+        base64 string.      
     """
     with open(cropped_image_path, "rb") as f:
         img_string = base64.b64encode(f.read())
         f.close()
     return img_string #.decode('utf-8')
 
-def accuracy(y_true, y_pred):
-    if y_pred.dim() > 1:  # Check if outputs tensor has more than one dimension
-        y_pred = torch.argmax(y_pred, dim=1)
-    y_pred = y_pred.cpu().detach().numpy()  # Move the tensor to CPU and then convert to numpy
-    y_true = y_true.cpu().detach().numpy()
-
-    # If y_true is one-hot encoded, convert to class labels
-    if y_true.shape[1] > 1:
-        y_true = np.argmax(y_true, axis=1)
-
-    return sum(y_pred == y_true) / len(y_true)
-
-
-from sklearn.metrics import precision_score, recall_score, f1_score, accuracy_score, roc_curve, auc
-
-def compute_metrics1(y_true, y_pred):
+def compute_metrics(y_true : torch.Tensor, y_pred : torch.Tensor) -> float:
+    """
+    This function computes metrics for multiclass classification.   
     
-    y_pred_softmax = torch.nn.functional.softmax(y_pred, dim=1)
-    y_pred_argmax = torch.argmax(y_pred_softmax, dim=1).cpu().detach().numpy()
-    y_true = y_true.cpu().detach().numpy()
-    y_pred_softmax = y_pred_softmax.cpu().detach().numpy()
-
-    precision = precision_score(y_true, y_pred_argmax, zero_division=1, average='weighted')
-    recall = recall_score(y_true, y_pred_argmax, zero_division=1, average='weighted')
-    f1 = f1_score(y_true, y_pred_argmax, average='weighted')
-    acc = accuracy_score(y_true, y_pred_argmax)
+    Parameters
+    ----------
+    y_true : torch.Tensor
+        true labels.
+    
+    y_pred : torch.Tensor   
+        predicted labels.
+    
+    Returns 
+    ------- 
+    float
+        accuracy.   
+    
+    """
+    y_true = y_true.cpu().numpy()
+    y_pred = y_pred.cpu().numpy()
+    
+    precision = precision_score(y_true, y_pred, zero_division=1, average='weighted')
+    recall = recall_score(y_true, y_pred, zero_division=1, average='weighted')
+    f1 = f1_score(y_true, y_pred, average='weighted')
+    
+    acc = accuracy_score(y_true, y_pred)
 
     return acc, precision, recall, f1
 
 def compute_metrics2(y_pred, y_true):
-    if y_pred.dim() > 1:  # Check if outputs tensor has more than one dimension
+    if y_pred.dim() > 1: 
+        
         y_pred = torch.argmax(y_pred, dim=1)
-    y_pred = y_pred.cpu().numpy()  # Move the tensor to CPU and then convert to numpy
+    y_pred = y_pred.cpu().numpy()  
     y_true = y_true.cpu().numpy()
 
     precision = precision_score(y_true, y_pred, zero_division=1, average='weighted')
@@ -198,3 +240,8 @@ def compute_metrics2(y_pred, y_true):
     acc = accuracy_score(y_true, y_pred)
 
     return acc, precision, recall, f1
+
+def get_class_info_from_data(data_dir):
+    classes = sorted(os.listdir(data_dir))
+    class_to_idx = {cls: idx for idx, cls in enumerate(classes)}
+    return class_to_idx, classes
