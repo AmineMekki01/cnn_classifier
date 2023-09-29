@@ -31,5 +31,5 @@ evaluation:
 
 inference:
   root_dir: artifacts/inference
-  trained_model_path: artifacts/Training/final_model.pth
+  trained_model_path: artifacts/Training/final_model.onnx
   images_dir: artifacts/data_ingestion/brain_image_classification/Prediction check images/Prediction check images/Prediction check images
