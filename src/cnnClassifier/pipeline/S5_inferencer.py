@@ -2,6 +2,10 @@ from cnnClassifier.constants import *
 from cnnClassifier.components.inference import Inference
 from cnnClassifier import logger
 from cnnClassifier.config.configuration import ConfigurationManager
+import torch
+import torchvision.transforms as transforms
+from PIL import Image
+import numpy as np
 
 STAGE_NAME = "Inference"
 
@@ -17,8 +21,8 @@ class ModelInferencePipeline:
         predictions = inference.predict_class()
         logger.info(predictions)
         logger.info("done")
-        
 
+            
 if __name__ == "__main__":
     try:
         logger.info(f">>>>> Stage {STAGE_NAME} started <<<<<")

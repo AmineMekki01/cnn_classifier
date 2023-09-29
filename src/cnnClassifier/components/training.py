@@ -14,7 +14,8 @@ class Training:
         This function initializes the class
         """
         self.config = config
-        
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu") 
+
     def get_model(self):
         """
         This function loads the model from the path provided in the config file
@@ -69,8 +70,7 @@ class Training:
         -------
         None
         """
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        self.model.to(device)
+        self.model.to(self.device)
 
         criterion = nn.CrossEntropyLoss()
         optimizer = optim.Adam(self.model.parameters(), lr=learning_rate)
@@ -87,8 +87,8 @@ class Training:
             valid_losses, valid_accuracy, valid_precision, valid_recall, valid_f1 = 0.0, 0.0, 0.0, 0.0, 0.0
             
             for images, labels in tqdm(self.train_loader, desc=f"Epoch {epoch+1}/{num_epochs or self.config.params_epochs}", unit="batch"):
-                images = images.to(device)
-                labels = labels.to(device)
+                images = images.to(self.device)
+                labels = labels.to(self.device)
                 optimizer.zero_grad()
                 outputs = self.model(images)
                 loss = criterion(outputs, labels)
@@ -109,8 +109,8 @@ class Training:
             self.model.eval()
             with torch.no_grad():
                 for images, labels in self.valid_loader:
-                    images = images.to(device)
-                    labels = labels.to(device)
+                    images = images.to(self.device)
+                    labels = labels.to(self.device)
                     outputs = self.model(images)
                     _, predicted = torch.max(outputs.data, 1)
                     loss = criterion(outputs, labels)
@@ -133,9 +133,8 @@ class Training:
         self.save_model(self.config.trained_model_path, self.model, self.train_dataset.class_to_idx)
         save_json(Path(self.config.score_path) / "metrics.json", metrics) 
 
-    
-    @staticmethod
-    def save_model(path: Path, model: nn.Module, class_to_idx : dict):
+
+    def save_model(self, path: Path, model: nn.Module, class_to_idx : dict):
         """
         This function saves the model to the path provided in the config file
         
@@ -153,5 +152,11 @@ class Training:
         None
         """
         model.class_to_idx = class_to_idx  
-        torch.save(model, path)
+        torch.save(model, path.with_suffix('.pth'))  
+
+        model.eval()
+        dummy_input = torch.randn(1, 3, 224, 224).to(self.device)
+        onnx_path = path.with_suffix('.onnx')  
         
+        torch.onnx.export(model, dummy_input, onnx_path, export_params=True, opset_version=11, 
+                          do_constant_folding=True, input_names=['input'], output_names=['output'])
