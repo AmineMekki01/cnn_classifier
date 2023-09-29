@@ -1,7 +1,5 @@
-from torch import nn, optim
 from cnnClassifier.constants import *
 from cnnClassifier.components.evaluation import Evaluation
-from cnnClassifier.components.prepare_callbacks import PrepareCallback
 from cnnClassifier import logger
 from cnnClassifier.config.configuration import ConfigurationManager
 
@@ -21,8 +19,8 @@ class ModelEvaluationPipeline:
 if __name__ == "__main__":
     try:
         logger.info(f">>>>> Stage {STAGE_NAME} started <<<<<")
-        data_ingestor = ModelEvaluationPipeline()
-        data_ingestor.main()
+        evaluator = ModelEvaluationPipeline()
+        evaluator.main()
         logger.info(f">>>>> Stage {STAGE_NAME} completed. <<<<< \n")
         
     except Exception as e:

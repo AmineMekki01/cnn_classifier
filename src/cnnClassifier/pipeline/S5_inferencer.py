@@ -1,7 +1,5 @@
-from torch import nn, optim
 from cnnClassifier.constants import *
-from cnnClassifier.components.inference import CustomImageDataset
-from cnnClassifier.components.prepare_callbacks import PrepareCallback
+from cnnClassifier.components.inference import Inference
 from cnnClassifier import logger
 from cnnClassifier.config.configuration import ConfigurationManager
 
@@ -15,11 +13,9 @@ class ModelInferencePipeline:
         logger.info(f"Stage: {STAGE_NAME}")
         config_manager = ConfigurationManager()        
         testing_config = config_manager.get_inference_config()
-        
-        inference = CustomImageDataset(config=testing_config)
-        
+        inference = Inference(config=testing_config)
         predictions = inference.predict_class()
-        print(predictions)
+        logger.info(predictions)
         logger.info("done")
         
 
