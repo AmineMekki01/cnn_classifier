@@ -1,43 +1,38 @@
 import torch
-from torch import nn, optim
+from torch import nn
 from pathlib import Path
 import torchvision.transforms as transforms
 from torchvision.datasets import ImageFolder
 from torch.utils.data import DataLoader, random_split
-from tqdm import tqdm
-from cnnClassifier.entity.config_entity import EvaluationConfig, TrainingConfig
+from cnnClassifier.entity.config_entity import EvaluationConfig
 from cnnClassifier.utils.common_functions import compute_metrics2, save_json
-import os 
 
 class Evaluation():
     def __init__(self, config: EvaluationConfig):
         self.config = config
-        self.get_base_model()
+        self.get_model()
         self.score = None
         self.criterion = nn.CrossEntropyLoss()
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        self.model.to(self.device)  # Move the model to the device
+        self.model.to(self.device) 
 
-    def get_base_model(self):
-        """Load a saved model."""
+    def get_model(self):
         self.model = torch.load(self.config.path_to_model)
 
     def valid_generator(self):
-        """Initialize the validation data loader."""
 
         valid_transform = transforms.Compose([
-            transforms.Resize(self.config.params_image_size[:-1]), 
+            transforms.Resize(self.config.params_image_size), 
             transforms.ToTensor()
         ])
         
-        full_dataset = ImageFolder(self.config.training_data, transform=valid_transform)
+        full_dataset = ImageFolder(self.config.evaluation_data, transform=valid_transform)
      
         val_len = int(0.2 * len(full_dataset))
         self.valid_dataset, _ = random_split(full_dataset, [val_len, len(full_dataset) - val_len])
         self.valid_loader = DataLoader(self.valid_dataset, batch_size=self.config.params_batch_size, shuffle=False, num_workers=4)
         
-    def validate(self):
-        """Evaluate the model on validation data."""
+    def evaluate(self):
         self.model.eval()
         loss = 0.0
         acc = 0.0
@@ -84,8 +79,7 @@ class Evaluation():
         save_json(Path(self.config.score_path) / "metrics.json", metrics)
 
     def evaluation(self):
-        """Main evaluation function to initialize data loaders and validate the model."""
+
         self.valid_generator()
-        self.validate()
+        self.evaluate()
         
- 

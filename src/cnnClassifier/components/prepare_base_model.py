@@ -1,69 +1,58 @@
-import os
-import urllib.request as request
-from zipfile import ZipFile
 import torch
-from torch import nn, optim
+from torch import nn
+from torchvision import models
 from pathlib import Path
 from cnnClassifier.entity.config_entity import PrepareBaseModelConfig
-from torchvision import models
-from torchsummary import summary
 
-class PrepareBaseModel:
-    def __init__(self, config: PrepareBaseModelConfig):
+class PrepareBaseModel(nn.Module):
+    def __init__(self, config : PrepareBaseModelConfig):
+        super(PrepareBaseModel, self).__init__()
         self.config = config
+        self.num_classes = self.config.params_classes
+        self.original_model = models.resnet18(pretrained=True)
+        self.save_original_model(self.config.base_model_path)
+        self.original_model = nn.Sequential(*list(self.original_model.children())[:-1])
+        self.fc = nn.Linear(512, self.num_classes)
+        self.save_modified_model(self.config.updated_base_model_path)
 
-    def get_base_model(self):
-        # Note: torchvision has pre-trained weights only for include_top=True. So if you need exclude top, you'll need to handle that differently.
-        self.model = models.vgg19(pretrained=(self.config.params_weights == "imagenet"))
+    def forward(self, x):
+        x = self.original_model(x)
+        x = x.view(x.size(0), -1)
+        x = self.fc(x)
+        return x
 
-        if not self.config.params_include_top:
-            # Removing the classifier part
-            self.model = nn.Sequential(*list(self.model.children())[:-1])
-        self.save_model(path=self.config.base_model_path, model=self.model)
-
-    def _prepare_full_model(self, model, classes, freeze_all, freeze_till, learning_rate):
-        if freeze_all:
-            for param in model.parameters():
-                param.requires_grad = False
-        elif (freeze_all is not None) and (freeze_all > 0):
-            ct = 0
-            for child in model.children():
-                ct += 1
-                if ct < freeze_till:
-                    for param in child.parameters():
-                        param.requires_grad = False
-
-        # If include_top is False
-        if not self.config.params_include_top:
-            # Adding new layers
-            model = nn.Sequential(
-                model,
-                nn.Flatten(),
-                nn.Linear(512 * 7 * 7, classes)  # This assumes the standard output size of VGG19 before classifier. Adjust if necessary.
-            )
-        else:
-            # Adjusting existing classifier for different number of classes
-            num_ftrs = model.classifier[6].in_features
-            model.classifier[6] = nn.Linear(num_ftrs, classes)
-
-        optimizer = optim.Adam(filter(lambda p: p.requires_grad, model.parameters()), lr=learning_rate)
-        criterion = nn.CrossEntropyLoss()
-
-        return model
-
-    def update_base_model(self):
-        self.full_model = self._prepare_full_model(
-            model=self.model,
-            classes=self.config.params_classes,
-            freeze_all=True,
-            freeze_till=None,
-            learning_rate=self.config.params_learning_rate
-        )
-        self.save_model(path=self.config.updated_base_model_path, model=self.full_model)
-
-    @staticmethod
-    def save_model(path: Path, model:nn.Module):
-        torch.save(model, path)
+    def save_original_model(self, path : Path):
+        """
+        This function saves the original model  
     
-    def get_summary(self, input_size):
-        return summary(self.full_model, input_size)
+        Parameters
+        ----------  
+        path : Path
+            path to save the original model
+        
+        Returns 
+        -------
+        None
+        """
+        torch.save(self.original_model, path)
+
+    def save_modified_model(self, path : Path):
+        """
+        This function saves the modified model
+        
+        Parameters
+        ----------
+        path : Path
+            path to save the modified model
+        
+        Returns 
+        -------
+        None
+        """
+        modified_model = nn.Sequential(
+            self.original_model,
+            self.fc
+        )
+        torch.save(modified_model, path)
+    
+    

@@ -2,7 +2,6 @@ import os
 import urllib.request as request
 import zipfile
 import smtplib
-from base64 import b64encode
 from cnnClassifier.entity.config_entity import DataIngestionConfig
 from cnnClassifier.utils.common_functions import get_size
 from cnnClassifier import logger
@@ -37,13 +36,13 @@ class DataIngestion:
         if os.path.getsize(self.config.local_data_file) == 0:
             raise ValueError("Downloaded file is empty")
 
-    def notify_failure(self, message):
+    def notify_failure(self, message : str):
         # Email Notification
         with smtplib.SMTP('smtp.example.com', 587) as server:
             server.login("Email", "password")
             server.sendmail("sender email", "receiver email", message)
 
-    def format_DI_error_mail(self, subject, message): # data ingestion email error format 
+    def format_DI_error_mail(self, subject : str, message : str): # data ingestion email error format 
         body = "There was an error during data ingestion. Here's the error message:\n\n" + message
         formatted_message = f"Subject: {subject}\n\n{body}"
         return formatted_message
