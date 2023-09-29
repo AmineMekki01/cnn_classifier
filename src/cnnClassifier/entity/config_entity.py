@@ -16,7 +16,8 @@ class DataIngestionConfig:
 @dataclass(frozen=True) 
 class PrepareBaseModelConfig:
     root_dir : Path
-    base_model_path : Path
+    # model_type : str
+    base_model_path: Path
     updated_base_model_path : Path
     params_learning_rate : float
     params_image_size : list 
@@ -43,11 +44,12 @@ class TrainingConfig:
     params_batch_size : int
     params_is_augmentation: bool
     params_image_size: list
+    params_classes : int
 
 @dataclass(frozen=True)
 class EvaluationConfig:
     path_to_model : Path
-    training_data : Path
+    evaluation_data : Path
     score_path : Path
     params_image_size : list
     params_batch_size :int
