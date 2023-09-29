@@ -8,28 +8,28 @@ data_ingestion:
 
 prepare_base_model:
   root_dir: artifacts/prepare_base_model
-  base_model_path: artifacts/prepare_base_model/base_model.h5
-  updated_base_model_path: artifacts/prepare_base_model/base_model_updated.h5
+  base_model_path: artifacts/prepare_base_model/base_model_path.pth
+  updated_base_model_path: artifacts/prepare_base_model/base_model_updated.pth
 
 
 prepare_callbacks:
   root_dir: artifacts/prepare_callbacks
   tensorboard_root_log_dir: artifacts/prepare_callbacks/tensorboard_log_dir
-  checkpoint_model_filepath: artifacts/prepare_callbacks/checkpoint_dir/model.h5
+  checkpoint_model_filepath: artifacts/prepare_callbacks/checkpoint_dir/model.pth
 
 
 training:
   root_dir: artifacts/Training
-  updated_base_model_path: artifacts/prepare_base_model/base_model_updated.h5
-  trained_model_path: artifacts/Training/model.h5
-  score_path: artifacts/scoring/training
+  updated_base_model_path: artifacts/prepare_base_model/base_model_updated.pth
+  trained_model_path: artifacts/Training/final_model.pth
+  score_path: artifacts/scoring/Training
 
 evaluation:
-  root_dir: artifacts/Training
-  trained_model_path: artifacts/Training/model.h5
-  score_path: artifacts/scoring/evaluation
+  trained_model_path: artifacts/Training/final_model.pth
+  score_path: artifacts/scoring/Evaluation
+  evaluation_data: artifacts/data_ingestion/brain_image_classification/brain_mri_images/Testing
 
 inference:
-  root_dir: artifacts/Inference
-  trained_model_path: artifacts/Training/model.h5
+  root_dir: artifacts/inference
+  trained_model_path: artifacts/Training/final_model.pth
   images_dir: artifacts/data_ingestion/brain_image_classification/Prediction check images/Prediction check images/Prediction check images
