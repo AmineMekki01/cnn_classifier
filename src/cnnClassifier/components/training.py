@@ -15,7 +15,7 @@ class Training:
         """
         self.config = config
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu") 
-
+        
     def get_model(self):
         """
         This function loads the model from the path provided in the config file
@@ -74,7 +74,8 @@ class Training:
 
         criterion = nn.CrossEntropyLoss()
         optimizer = optim.Adam(self.model.parameters(), lr=learning_rate)
-        
+        scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=7, gamma=0.1)
+
         num_batches_train = len(self.train_loader)
         num_batches_valid = len(self.valid_loader)
 
@@ -103,9 +104,13 @@ class Training:
                 train_precision += train_prec
                 train_recall += train_rec
                 train_f1 += train_f1_score
-
+                
+            
+            
             metrics[epoch] = {'train_loss': train_losses/num_batches_train, 'train_acc': train_accuracy/num_batches_train, 'train_prec': train_precision/num_batches_train, 'train_rec': train_recall/num_batches_train, 'train_f1': train_f1/num_batches_train}
-
+            scheduler.step()
+            
+            
             self.model.eval()
             with torch.no_grad():
                 for images, labels in self.valid_loader:

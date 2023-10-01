@@ -12,7 +12,10 @@ class PrepareBaseModel(nn.Module):
         self.original_model = models.resnet18(pretrained=True)
         self.save_original_model(self.config.base_model_path)
         self.original_model = nn.Sequential(*list(self.original_model.children())[:-1])
-        self.fc = nn.Linear(512, self.num_classes)
+        self.fc = nn.Sequential(
+            nn.Dropout(0.5),
+            nn.Linear(512, self.num_classes)
+        )
         self.save_modified_model(self.config.updated_base_model_path)
 
     def forward(self, x):
