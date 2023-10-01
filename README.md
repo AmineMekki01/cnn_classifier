@@ -1,5 +1,7 @@
 # Brain MRI Multi-Class Classification Project
 
+![image](https://github.com/AmineMekki01/cnn_classifier/assets/114087044/3023998b-ac9c-425c-87f4-877e09b1c514)
+
 ## Overview
 
 This project aims to classify brain MRI images into one of four categories: three types of pathologies along with a no-tumor classification. By utilizing pre-trained models, the final layer is modified to accommodate the four classes essential for multi-class classification. The endeavor follows good practices of machine learning and programming, presenting an end-to-end project from data procurement from a GitHub repository to deployment. The structure of the project is meticulously organized to ensure clarity and detailed workflow in machine learning projects. Various tools and techniques such as configuration files, configuration manager, pipeline management, inference optimization (ONNX),   GitHub actions, and DVC for data versioning are implemented to streamline the process.
@@ -35,79 +37,3 @@ Logs are maintained in the logs directory with log files named with the date of 
 
 ## Conclusion
 This project demonstrates a structured and well-organized approach to a machine learning project, right from data ingestion to deployment, following good programming and ML practices.
-
-## Directory Structure
-cnnClassifier
-├───artifacts
-│   ├───data_ingestion
-│   │   └───brain_image_classification
-│   │       ├───brain_mri_images
-│   │       │   ├───Testing
-│   │       │   │   ├───glioma
-│   │       │   │   ├───meningioma
-│   │       │   │   ├───notumor
-│   │       │   │   └───pituitary
-│   │       │   └───Training
-│   │       │       ├───glioma
-│   │       │       ├───meningioma
-│   │       │       ├───notumor
-│   │       │       └───pituitary
-│   │       ├───ednet_weights
-│   │       └───Prediction check images
-│   ├───prepare_base_model
-│   ├───scoring
-│   │   ├───Evaluation
-│   │   │       metrics.json
-│   │   └───Training
-│   │           metrics.json
-│   └───Training
-│           final_model.pth
-├───config
-│       config.yaml
-├───logs
-│       29_09_2023.log
-├───src
-│   ├───cnnClassifier
-│   │   ├───components
-│   │   │   ├─── data_ingestion.py
-│   │   │   ├─── evaluation.py
-│   │   │   ├─── inference.py
-│   │   │   ├─── prepare_base_model.py
-│   │   │   ├─── prepare_callbacks.py
-│   │   │   ├─── training.py
-│   │   ├───config
-│   │   │   ├─── configuration.py
-│   │   ├───constants
-│   │   ├───entity
-│   │   │   ├─── config_entity.py
-│   │   ├───pipeline
-│   │   │   ├─── S1_data_ingestion.py
-│   │   │   ├─── S2_prepare_base_model.py
-│   │   │   ├─── S3_training.py
-│   │   │   ├─── S4_evaluation.py
-│   │   │   ├─── S5_inferencer.py
-│   │   ├───utils
-│   │   │   ├─── common_functions.py
-├───static
-│       scripts.js
-│       styles.css
-├───templates        
-│       index.html
-│   
-├───main.py
-│   
-├───app.py
-│   
-├───setup.py
-│   
-├───template.py
-│   
-├───params.yaml
-│   
-├───environment.yaml
-│   
-├───dvc.yaml/dvc.lock
-│   
-├───requirements.txt
-│   
-├───README.md
